@@ -1,0 +1,41 @@
+:host {
+  display: grid;
+  border-radius: 1em;
+  /*border: 1px solid rgb(73, 202, 55);*/
+  width: 100%;
+  height: 100%;
+  box-shadow: 1px 10px 3em rgb(29, 90, 21);
+  padding: .7em;
+  text-transform: capitalize;
+  grid-template-rows: .3fr .01fr .6fr;
+  grid-gap: .5em;
+  justify-content: center;
+}
+
+:host > hr {
+  color: darkslategrey;
+}
+
+:host > div {
+  border-radius: 0 0 1em 0;
+  box-shadow: 4px 4px 10px rgb(29, 90, 21);
+}
+
+:host > div > label > input, :host > div > input {
+  height: 3em;
+  border: none;
+}
+
+:host > div > label > input {
+  border-radius: .6em .3em 0 .3em;
+  padding-left: .4em;
+}
+
+:host > div > input {
+  border-radius: 0 .3em 1em 0;
+  padding: .2em;
+  cursor: pointer;
+  background-color: darkslategrey;
+  color: white;
+  font-weight: 400;
+}
