@@ -1,0 +1,103 @@
+:host {
+  display: grid;
+  grid-template-rows: 80vh 20vh;
+}
+
+:host > .videos {
+  background-color: rgba(0, 128, 0, 0.473);
+  box-shadow: 1px 10px 5em darkslategrey;
+}
+
+:host > .interface {
+  box-shadow: 1px -4px 2em darkslategrey;
+  background-color: rgba(47, 79, 79, 0.486);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 2em;
+  align-items: center;
+  padding: 0 1em 0 1em;
+}
+
+.interface-call-settings > input {
+  background-color: rgb(196, 187, 187);
+  border: none;
+  color: rgb(43, 35, 35);
+  font-size: 1em;
+}
+
+.interface-sound > input {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.interface-call-settings {
+  display: grid;
+  grid-template-columns: 70% 30%;
+}
+
+.interface-call-settings {
+  border-radius: 0 0 1em 0;
+}
+
+.interface-call-settings > button {
+  border-radius: 0 0 1em 0;
+  background-color: darkslategrey;
+  border: none;
+}
+
+.interface-call-end {
+  background-color: darkslategrey;
+  border-radius: 1em 0 1em 0;
+  border: none;
+}
+
+.interface-sound {
+  border-radius: 0 0 0 1em;
+  background-color: darkslategrey;
+}
+
+.interface-call-end, .interface-call-settings > button {
+  color: rgb(189, 189, 189);
+  font-size: 1em;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+.interface-call-end, .interface-call-settings, .interface-sound {
+  box-shadow: 1px 3px 5px darkslategrey;
+  transition: box-shadow .4s linear;
+  height: 3em;
+}
+
+.interface-call-end:hover, .interface-call-settings:hover, .interface-sound:hover {
+  box-shadow: 1px 3px 4px rgb(10, 29, 29);
+}
+
+.interface-sound > input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 23px;
+  width: 10px;
+  border-radius: 3px;
+  background: rgb(189, 189, 189);
+  cursor: pointer;
+  margin-top: -8px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+}
+
+.interface-sound > input::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  background: rgb(189, 189, 189);
+  border-radius: 1.3px;
+  border: 0.2px solid #010101;
+}
+
+.interface-call-settings > button, .interface-call-settings > input, .interface-call-end {
+  padding: .2em;
+}
+
+.interface-sound {
+  padding: 0 .4em 0 .4em;
+}
