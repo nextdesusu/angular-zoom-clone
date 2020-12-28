@@ -6,6 +6,10 @@
 :host > .videos {
   background-color: rgba(0, 128, 0, 0.473);
   box-shadow: 1px 10px 5em darkslategrey;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: underline;
 }
 
 :host > .interface {
