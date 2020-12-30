@@ -13,7 +13,7 @@ interface User {
 
 interface Room {
   host: User;
-  client: User | null;
+  clients: Array<User>;
   name: string;
   id: string;
 }
@@ -40,6 +40,11 @@ export default class Server {
     this.rooms.set(room.id, room);
   }
 
+  private getRoomByName(roomName: string): Room | null {
+    const result: Room | undefined = this.roomsArray.find((room) => room.name === roomName);
+    return result === undefined ? null : result;
+  }
+
   private getRoomById(roomId: string): Room | null {
     const room: Room | undefined = this.rooms.get(roomId);
     return room === undefined ? null : room;
@@ -51,11 +56,7 @@ export default class Server {
       console.log(`Room with id: ${roomId} does not exist!`);
       return;
     }
-    if (room.client !== null) {
-      console.log(`Room is full!`);
-      return;
-    }
-    room.client = client;
+    room.clients.push(client);
   }
 
   get roomsArray() {
@@ -70,6 +71,7 @@ export default class Server {
           id: genId(),
           hosted: null,
         }
+        console.log("user joined:", user);
         this.socketIO.to(socketClient.id).emit("webrtc-userId",
           {
             id: user.id,
@@ -100,16 +102,20 @@ export default class Server {
         const room: Room = {
           name: roomName,
           id,
-          client: null,
+          clients: [],
           host,
         };
         this.addRoom(room);
         socketClient.join(id);
         this.socketIO.to(socketClient.id).emit("webrtc-roomHostResponse", { roomId: id });
         this.socketIO.emit("webrtc-roomsUpdate", { rooms: this.roomsArray });
-
         host.hosted = room.id;
       });
+      socketClient.on("webrtc-roomJoinByNameQuerry", (data) => {
+        const room: Room | null = this.getRoomByName(data.roomName);
+        this.socketIO.emit("webrtc-roomJoinByNameResponse", { roomId: room ? room.id : "NO_SUCH_ROOM" });
+      });
+
       socketClient.on("webrtc-offer", (data) => {
         socketClient.broadcast.to(data.roomId).emit("webrtc-offer", data);
       });

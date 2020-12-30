@@ -20,9 +20,9 @@
     "@angular/platform-browser-dynamic": "~10.0.2",
     "@angular/router": "~10.0.2",
     "@types/socket.io-client": "^1.4.34",
+    "socket.io-client": "^2.3.0",
     "concurrently": "^5.3.0",
     "rxjs": "~6.5.5",
-    "socket.io-client": "^3.0.4",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"
   },

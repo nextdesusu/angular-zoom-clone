@@ -9,7 +9,6 @@ export enum gameType {
 }
 
 export interface hostEvent {
-  type: gameType;
   name: string;
 }
 

@@ -16,7 +16,7 @@ interface messageToSend {
   author: User;
 }
 
-export default class Connection {
+export default class WEBRTC {
   private socket: Socket;
   private user: User | null;
   private channel: RTCDataChannel | null;
@@ -25,7 +25,8 @@ export default class Connection {
   private _mesages: Array<Message>;
   private _connectionEstablished: boolean = false;
   private webrtcDataCb: cbType | null;
-  constructor(userName: string) {
+  private videoElem: any;
+  constructor(userName: string, videoElem: any) {
     this._rooms = [];
     this._mesages = [];
     this.user = null;
@@ -33,12 +34,13 @@ export default class Connection {
     this.p2p = null;
     this.socket = io.connect(`${window.location.hostname}:3000`);
     this.initSocket(userName);
+    this.videoElem = videoElem;
 
     this.createP2P();
-    this.createDataChannel();
+    this.makeCall();
   }
 
-  setwebrtcDataCb(cb: cbType) {
+  setwebrtcDataCb(cb: cbType): void {
     this.webrtcDataCb = cb;
   }
 
@@ -71,10 +73,16 @@ export default class Connection {
     }
   }
 
-  private createDataChannel(): void {
+  makeCall(): void {
     if (this.p2p === null) {
       throw `P2P is null!`;
     }
+    const myStream = this.videoElem.captureStream();
+    myStream.getTracks().forEach(track => this.p2p.addTrack(track, myStream));
+    this.p2p.ontrack = (track) => console.log("got track:", track);
+  }
+
+  private createDataChannel(): void {
     this.channel = this.p2p.createDataChannel("webrtc", { negotiated: true, id: 0 });
     this.channel.onopen = () => {
       const stringified = JSON.stringify({ key: "p", data: this.user });
@@ -149,15 +157,24 @@ export default class Connection {
   }
 
   createRoom(event: hostEvent, onCreationCb: (roomId: string) => void) {
-    this.socket.emit("webrtc-roomHostQuery", { roomName: event.name, webrtcType: event.type });
+    this.socket.emit("webrtc-roomHostQuery", { roomName: event.name });
     this.socket.on("webrtc-roomHostResponse", (data) => {
       onCreationCb(data.roomId);
     });
     this.fetchRooms();
   }
 
+  async joinByName(roomName: string) {
+    this.socket.emit("webrtc-roomJoinByNameQuerry", { roomName });
+    this.socket.on("webrtc-roomJoinByNameResponse", async (data) => {
+      console.log("data", data);
+      await this.join(data.roomId);
+    })
+  }
+
   async join(roomId: string) {
     this.setCndExhanger(roomId);
+    await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
     this.socket.emit("webrtc-roomJoinQuery", { roomId });
     this.socket.on("webrtc-offer", async ({ webRtcData }) => {
       await this.p2p.setRemoteDescription(webRtcData);

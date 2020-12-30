@@ -1,10 +1,15 @@
 <div class="videos">
-  <h2>You should call someone!</h2>
+  <div class="interface-call-settings">
+    <input (input)="handleRoomNameInput($event)"/>
+    <button (click)="handleHost()">host</button>
+  </div>
+  <video #hostStream></video>
+  <video #clientStream></video>
 </div>
 <div class="interface">
   <div class="interface-call-settings">
-    <input />
-    <button>call</button>
+    <input (input)="handleRoomNameInput($event)" />
+    <button (click)="handleJoin()">call</button>
   </div>
   <button class="interface-call-end">end call</button>
   <div class="interface-sound"><input type="range" /></div>
