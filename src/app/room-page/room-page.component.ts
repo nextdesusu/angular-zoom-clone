@@ -41,6 +41,6 @@ export class RoomPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.connection = new WEBRTC(this.userName, this.hostStream.nativeElement);
+    this.connection = new WEBRTC(this.userName, this.hostStream.nativeElement, this.clientStream.nativeElement);
   }
 }

@@ -90,6 +90,7 @@ export default class Server {
         this.addClientToRoom(roomId, user);
         socketClient.join(roomId);
         this.socketIO.to(socketClient.id).emit("webrtc-roomJoinResponse", { succes: true });
+        console.log("client", user);
         socketClient.broadcast.to(roomId).emit("webrtc-clientJoin");
       });
       socketClient.on("webrtc-roomHostQuery", (data) => {
@@ -111,7 +112,7 @@ export default class Server {
         this.socketIO.emit("webrtc-roomsUpdate", { rooms: this.roomsArray });
         host.hosted = room.id;
       });
-      socketClient.on("webrtc-roomJoinByNameQuerry", (data) => {
+      socketClient.on("webrtc-roomJoinByNameQuery", (data) => {
         const room: Room | null = this.getRoomByName(data.roomName);
         this.socketIO.emit("webrtc-roomJoinByNameResponse", { roomId: room ? room.id : "NO_SUCH_ROOM" });
       });
