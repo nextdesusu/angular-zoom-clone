@@ -10,6 +10,11 @@ export interface User {
   id: string;
 }
 
+export interface UserStream {
+  user: User;
+  stream: MediaStream;
+}
+
 interface messageToSend {
   text: string;
   date: Date;
@@ -22,25 +27,26 @@ export default class WEBRTC {
   private channel: RTCDataChannel | null;
   private p2p: RTCPeerConnection | null;
   private _rooms: Array<Room>;
-  private _mesages: Array<Message>;
+  private _users: Array<User>;
   private _connectionEstablished: boolean = false;
   private webrtcDataCb: cbType | null;
   private roomId: string = "";
-  private videoElem: any;
-  private cVideo: any;
-  constructor(userName: string, videoElem: any, cVideo: any) {
+  private streams: Array<UserStream>;
+  constructor(userName: string) {
     this._rooms = [];
-    this._mesages = [];
     this.user = null;
+    this._users = [];
     this.channel = null;
     this.p2p = null;
     this.socket = io.connect(`${window.location.hostname}:3000`);
     this.initSocket(userName);
-    this.videoElem = videoElem;
-    this.cVideo = cVideo;
+    this.streams = [];
 
     this.createP2P();
-    //this.makeCall();
+  }
+
+  public get allStreams() {
+    return this.streams;
   }
 
   setwebrtcDataCb(cb: cbType): void {
@@ -73,16 +79,7 @@ export default class WEBRTC {
         this._connectionEstablished = true;
       }
       console.log("connection state:", this.p2p.connectionState);
-    }/*
-    this.p2p.onnegotiationneeded = async () => {
-      const offer = await this.p2p.createOffer();
-      await this.p2p.setLocalDescription(offer);
-      this.socket.emit("webrtc-offer", {
-        webRtcData: offer,
-        roomId: this.roomId
-      });
-      console.log("onnegotiationneeded to:", this.roomId);
-    };*/
+    }
   }
 
   private fetchRooms(): void {
@@ -108,10 +105,6 @@ export default class WEBRTC {
 
   get rooms() {
     return this._rooms;
-  }
-
-  get messages() {
-    return this._mesages;
   }
 
   get connectionEstablished() {
@@ -140,13 +133,24 @@ export default class WEBRTC {
       throw `P2P is null!`;
     }
     const localStream: MediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-    //this.videoElem.srcObject = localStream;
-    this.videoElem.srcObject = localStream;
-    console.log("lstream", localStream);
+    this.streams.push({
+      user: this.user,
+      stream: localStream,
+    });
     localStream.getTracks().forEach(track => {
       this.p2p.addTrack(track, localStream);
     });
-    this.p2p.ontrack = (track) => console.log("got track:", track);
+    let joinedId = 0;
+    this.p2p.ontrack = (e) => {
+      console.log("got track:", e);
+      if (joinedId < 1) {
+        this.streams.push({
+          user: { nickname: "unknown", id: "undefined" },
+          stream: e.streams[0]
+        });
+      }
+      joinedId += 1;
+    }
   }
 
   async join(roomId: string) {
@@ -180,18 +184,18 @@ export default class WEBRTC {
       });
     });
   }
-    //await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-    /*
-    this.socket.on("webrtc-clientJoin", async () => {
-      const offer = await this.p2p.createOffer();
-      await this.p2p.setLocalDescription(offer);
-      this.socket.emit("webrtc-offer", {
-        webRtcData: offer,
-        roomId
-      });
+  //await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+  /*
+  this.socket.on("webrtc-clientJoin", async () => {
+    const offer = await this.p2p.createOffer();
+    await this.p2p.setLocalDescription(offer);
+    this.socket.emit("webrtc-offer", {
+      webRtcData: offer,
+      roomId
     });
-    this.socket.on("webrtc-answer", async ({ webRtcData }) => {
-      await this.p2p.setRemoteDescription(webRtcData);
-    });
-    */
+  });
+  this.socket.on("webrtc-answer", async ({ webRtcData }) => {
+    await this.p2p.setRemoteDescription(webRtcData);
+  });
+  */
 }

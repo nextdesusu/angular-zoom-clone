@@ -1,0 +1,10 @@
+:host {
+  width: 260px;
+  height: 260px;
+  border: red 1px solid;
+}
+:host > video {
+  width: 260px;
+  height: 260px;
+  border: red 1px solid;
+}

@@ -5,7 +5,7 @@ import {
   ElementRef
 } from '@angular/core';
 
-import WEBRTC from "../../WEBRTC";
+import WEBRTC, { UserStream } from "../../WEBRTC";
 
 @Component({
   selector: 'app-room-page',
@@ -13,10 +13,8 @@ import WEBRTC from "../../WEBRTC";
   styleUrls: ['./room-page.component.css']
 })
 export class RoomPageComponent implements OnInit {
-  @ViewChild("hostStream", { static: true }) hostStream: ElementRef;
-  @ViewChild("clientStream", { static: true }) clientStream: ElementRef;
   private userName: string = `desu: ${Math.random()}`;
-  private connection: WEBRTC = null;
+  public connection: WEBRTC = null;
   private targetRoom: string = "";
 
   constructor() { }
@@ -41,6 +39,6 @@ export class RoomPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.connection = new WEBRTC(this.userName, this.hostStream.nativeElement, this.clientStream.nativeElement);
+    this.connection = new WEBRTC(this.userName);
   }
 }

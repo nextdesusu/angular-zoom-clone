@@ -1,10 +1,21 @@
 <div class="videos">
-  <div class="interface-call-settings">
-    <input (input)="handleRoomNameInput($event)"/>
+  <div
+    *ngIf="!connection.connectionEstablished"
+    class="interface-call-settings"
+  >
+    <input placeholder="Room name..." (input)="handleRoomNameInput($event)" />
     <button (click)="handleHost()">host</button>
   </div>
-  <video #hostStream></video>
-  <video #clientStream></video>
+  <div *ngIf="connection.connectionEstablished">
+    <ng-template ngFor let-stream [ngForOf]="connection.allStreams">
+      <div>
+        <app-video
+          [data]="{ stream: stream.stream, nickname: stream.user.nickname }"
+        >
+        </app-video>
+      </div>
+    </ng-template>
+  </div>
 </div>
 <div class="interface">
   <div class="interface-call-settings">
