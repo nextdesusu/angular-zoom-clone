@@ -3,25 +3,32 @@
     *ngIf="!connection.connectionEstablished"
     class="interface-call-settings"
   >
-    <input placeholder="Room name..." (input)="handleRoomNameInput($event)" />
+    <input
+      placeholder="Enter room name..."
+      (input)="handleRoomNameInput($event)"
+    />
     <button (click)="handleHost()">host</button>
   </div>
   <div *ngIf="connection.connectionEstablished">
-    <ng-template ngFor let-stream [ngForOf]="connection.allStreams">
+    <ng-template ngFor let-item [ngForOf]="connection.allStreams">
       <div>
-        <app-video
-          [data]="{ stream: stream.stream, nickname: stream.user.nickname }"
-        >
-        </app-video>
+        <app-video [stream]="item.stream"> </app-video>
       </div>
     </ng-template>
   </div>
 </div>
 <div class="interface">
   <div class="interface-call-settings">
-    <input (input)="handleRoomNameInput($event)" />
+    <input
+      placeholder="Enter room name..."
+      (input)="handleRoomNameInput($event)"
+    />
     <button (click)="handleJoin()">call</button>
   </div>
   <button class="interface-call-end">end call</button>
-  <div class="interface-sound"><input type="range" /></div>
+  <div class="interface-link">
+    <button [disabled]="!connection.roomEntered" (click)="generateLink()">
+      get link for a room!
+    </button>
+  </div>
 </div>

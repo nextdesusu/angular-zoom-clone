@@ -1,8 +1,6 @@
 import {
   Component,
   OnInit,
-  ViewChild,
-  ElementRef
 } from '@angular/core';
 
 import WEBRTC, { UserStream } from "../../WEBRTC";
@@ -40,5 +38,10 @@ export class RoomPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.connection = new WEBRTC(this.userName);
+  }
+
+  generateLink(): void {
+    const link = `${window.location.hostname}/room=${this.connection.room}`;
+    navigator.clipboard.writeText(link);
   }
 }

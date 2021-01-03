@@ -6,12 +6,12 @@ import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
   styleUrls: ['./video.component.css']
 })
 export class VideoComponent implements OnInit {
-  @Input() data: any;
+  @Input() stream: MediaStream;
   @ViewChild("videoElem", { static: true }) videoElem: ElementRef;
   constructor() { }
 
   ngOnInit(): void {
-    this.videoElem.nativeElement.srcObject = this.data.stream;
+    this.videoElem.nativeElement.srcObject = this.stream;
   }
 
 }

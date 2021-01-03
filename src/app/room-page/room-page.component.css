@@ -29,9 +29,8 @@
   font-size: 1em;
 }
 
-.interface-sound > input {
+.interface-link > button {
   width: 100%;
-  margin-top: 18px;
 }
 
 .interface-call-settings {
@@ -49,65 +48,48 @@
   border: none;
 }
 
-.interface-call-end {
+.interface-call-end, .interface-link > button {
   background-color: darkslategrey;
   border-radius: 1em 0 1em 0;
   border: none;
 }
 
-.interface-sound {
+.interface-link > button {
   border-radius: 0 0 0 1em;
   background-color: darkslategrey;
+  transition: background-color .2s ease-out;
 }
 
-.interface-call-end, .interface-call-settings > button {
+.interface-call-end, .interface-call-settings > button, .interface-link > button {
   color: rgb(189, 189, 189);
   font-size: 1em;
   text-transform: capitalize;
   cursor: pointer;
 }
 
-.interface-call-end, .interface-call-settings, .interface-sound {
+.interface-call-end, .interface-call-settings, .interface-link > button {
   box-shadow: 1px 3px 5px darkslategrey;
   transition: box-shadow .4s linear;
   height: 3em;
 }
 
-.interface-call-end:hover, .interface-call-settings:hover, .interface-sound:hover {
+.interface-call-end:hover, .interface-call-settings:hover, .interface-link > button:hover {
   box-shadow: 1px 3px 4px rgb(10, 29, 29);
 }
 
-.interface-sound > input::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  height: 23px;
-  width: 10px;
-  border-radius: 3px;
-  background: rgb(189, 189, 189);
-  cursor: pointer;
-  margin-top: -8px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
-}
-
-.interface-sound > input::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 8.4px;
-  cursor: pointer;
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: rgb(189, 189, 189);
-  border-radius: 1.3px;
-  border: 0.2px solid #010101;
-}
 
 .interface-call-settings > button, .interface-call-settings > input, .interface-call-end {
   padding: .2em;
 }
 
-.interface-sound {
-  padding: 0 .4em 0 .4em;
+.interface-link > button:disabled {
+  background-color: rgb(70, 70, 70);
+  transition: background-color .6s ease-out;
 }
 
-video {
-  width: 100px;
-  height: 100px;
-  border: 1px solid black;
+.interface-link > button:disabled:hover {
+  background-color: rgb(122, 0, 0);
 }
+
+
+

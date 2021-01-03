@@ -123,9 +123,14 @@ export default class Server {
       socketClient.on("webrtc-answer", (data) => {
         socketClient.broadcast.to(data.roomId).emit("webrtc-answer", data);
       });
+      socketClient.on("webrtc-assignSdpToUser", (data) => {
+        //socketClient.broadcast.to(data.roomId).emit("webrtc-answer", data);
+
+      });
       socketClient.on("ICE-exhangeCandidates", (data) => {
         socketClient.broadcast.to(data.roomId).emit("ICE-exhangeCandidates", data.candidates);
       });
+
       socketClient.on("disconnect", () => {
         const user = this.users.get(socketClient.id);
         this.rooms.delete(user?.hosted || "");

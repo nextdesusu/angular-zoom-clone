@@ -3,22 +3,13 @@ import { hostEvent, Room, Message } from "./types";
 
 type Socket = typeof SocketValue;
 
-type cbType = (arg: any) => void;
-
 export interface User {
   nickname: string;
   id: string;
 }
 
 export interface UserStream {
-  user: User;
   stream: MediaStream;
-}
-
-interface messageToSend {
-  text: string;
-  date: Date;
-  author: User;
 }
 
 export default class WEBRTC {
@@ -29,7 +20,6 @@ export default class WEBRTC {
   private _rooms: Array<Room>;
   private _users: Array<User>;
   private _connectionEstablished: boolean = false;
-  private webrtcDataCb: cbType | null;
   private roomId: string = "";
   private streams: Array<UserStream>;
   constructor(userName: string) {
@@ -49,8 +39,12 @@ export default class WEBRTC {
     return this.streams;
   }
 
-  setwebrtcDataCb(cb: cbType): void {
-    this.webrtcDataCb = cb;
+  public get room() {
+    return this.roomId;
+  }
+
+  public get roomEntered() {
+    return this.roomId !== "";
   }
 
   private initSocket(userName: string): void {
@@ -88,6 +82,7 @@ export default class WEBRTC {
 
   private setCndExhanger(roomId: string) {
     this.roomId = roomId;
+    console.log("roomId is:", this.roomId);
     const candidates = [];
     this.p2p.onicecandidate = ({ candidate }) => {
       if (candidate !== null) {
@@ -134,18 +129,15 @@ export default class WEBRTC {
     }
     const localStream: MediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
     this.streams.push({
-      user: this.user,
       stream: localStream,
     });
     localStream.getTracks().forEach(track => {
       this.p2p.addTrack(track, localStream);
     });
     let joinedId = 0;
-    this.p2p.ontrack = (e) => {
-      console.log("got track:", e);
+    this.p2p.ontrack = (e: any) => {
       if (joinedId < 1) {
         this.streams.push({
-          user: { nickname: "unknown", id: "undefined" },
           stream: e.streams[0]
         });
       }
@@ -184,18 +176,4 @@ export default class WEBRTC {
       });
     });
   }
-  //await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-  /*
-  this.socket.on("webrtc-clientJoin", async () => {
-    const offer = await this.p2p.createOffer();
-    await this.p2p.setLocalDescription(offer);
-    this.socket.emit("webrtc-offer", {
-      webRtcData: offer,
-      roomId
-    });
-  });
-  this.socket.on("webrtc-answer", async ({ webRtcData }) => {
-    await this.p2p.setRemoteDescription(webRtcData);
-  });
-  */
 }
