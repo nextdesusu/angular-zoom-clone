@@ -71,7 +71,7 @@ export default class Server {
           id: genId(),
           hosted: null,
         }
-        console.log("user joined:", user);
+        //console.log("user joined:", user);
         this.socketIO.to(socketClient.id).emit("webrtc-userId",
           {
             id: user.id,
