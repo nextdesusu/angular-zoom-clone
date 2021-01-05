@@ -82,14 +82,21 @@
   padding: .2em;
 }
 
-.interface-link > button:disabled {
+.interface-link > button:disabled, .interface-call-settings > button:disabled {
   background-color: rgb(70, 70, 70);
   transition: background-color .6s ease-out;
 }
 
-.interface-link > button:disabled:hover {
+.interface-link > button:disabled:hover, .interface-call-settings > button:disabled:hover {
   background-color: rgb(122, 0, 0);
 }
 
-
+.streams {
+  display: grid;
+  align-items: center;
+  justify-content: space-around;
+  grid-gap: 1em;
+  grid-template-columns: 3;
+  grid-template-rows: 3;
+}
 

@@ -8,35 +8,26 @@ export interface User {
   id: string;
 }
 
-export interface UserStream {
-  stream: MediaStream;
-}
-
 export default class WEBRTC {
-  private socket: Socket;
-  private user: User | null;
-  private channel: RTCDataChannel | null;
-  private p2p: RTCPeerConnection | null;
-  private _rooms: Array<Room>;
-  private _users: Array<User>;
+  private user: User | null = null;
+  private p2p: RTCPeerConnection | null = null;
+
+  private _streams: Array<MediaStream> = [];
+  private _rooms: Array<Room> = [];
+  private _users: Array<User> = [];
+
   private _connectionEstablished: boolean = false;
   private roomId: string = "";
-  private streams: Array<UserStream>;
+  private socket: Socket;
   constructor(userName: string) {
-    this._rooms = [];
-    this.user = null;
-    this._users = [];
-    this.channel = null;
-    this.p2p = null;
     this.socket = io.connect(`${window.location.hostname}:3000`);
     this.initSocket(userName);
-    this.streams = [];
 
     this.createP2P();
   }
 
-  public get allStreams() {
-    return this.streams;
+  public get streams() {
+    return this._streams;
   }
 
   public get room() {
@@ -72,7 +63,7 @@ export default class WEBRTC {
       if (this.p2p.connectionState === "connected") {
         this._connectionEstablished = true;
       }
-      console.log("connection state:", this.p2p.connectionState);
+      //console.log("connection state:", this.p2p.connectionState);
     }
   }
 
@@ -82,7 +73,6 @@ export default class WEBRTC {
 
   private setCndExhanger(roomId: string) {
     this.roomId = roomId;
-    console.log("roomId is:", this.roomId);
     const candidates = [];
     this.p2p.onicecandidate = ({ candidate }) => {
       if (candidate !== null) {
@@ -109,8 +99,10 @@ export default class WEBRTC {
   createRoom(event: hostEvent, onCreationCb: (roomId: string) => void) {
     this.socket.emit("webrtc-roomHostQuery", { roomName: event.name });
     this.socket.on("webrtc-roomHostResponse", (data) => {
-      onCreationCb(data.roomId);
-      this.host(data.roomId);
+      if (data.succes) {
+        onCreationCb(data.roomId);
+        this.host(data.roomId);
+      }
     });
     this.fetchRooms();
   }
@@ -118,37 +110,39 @@ export default class WEBRTC {
   async joinByName(roomName: string) {
     this.socket.emit("webrtc-roomJoinByNameQuery", { roomName });
     this.socket.on("webrtc-roomJoinByNameResponse", async (data) => {
-      console.log("data", data);
       await this.join(data.roomId);
     })
   }
 
   async makeCall(): Promise<void> {
-    if (this.p2p === null) {
-      throw `P2P is null!`;
-    }
+    if (this.p2p === null) throw `P2P is null!`;
     const localStream: MediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-    this.streams.push({
-      stream: localStream,
-    });
+    this._streams.push(localStream);
     localStream.getTracks().forEach(track => {
       this.p2p.addTrack(track, localStream);
     });
-    let joinedId = 0;
-    this.p2p.ontrack = (e: any) => {
-      if (joinedId < 1) {
-        this.streams.push({
-          stream: e.streams[0]
-        });
+    //Not finished
+    this.p2p.ontrack = (e: RTCTrackEvent) => {
+      const currentStream: MediaStream = e.streams[0];
+      const haveStream: boolean = Boolean(this._streams.find(
+        (el: MediaStream) => el.id === currentStream.id
+      ));
+      if (!haveStream) {
+        this._streams.push(currentStream);
       }
-      joinedId += 1;
+      //console.log("streams now:", e.streams);
     }
   }
+
 
   async join(roomId: string) {
     this.setCndExhanger(roomId);
     this.socket.emit("webrtc-roomJoinQuery", { roomId });
-    await this.makeCall();
+    this.socket.on("webrtc-roomJoinResponse", async (data) => {
+      if (data.succes) {
+        await this.makeCall();
+      }
+    });
     this.socket.on("webrtc-offer", async ({ webRtcData }) => {
       await this.p2p.setRemoteDescription(webRtcData);
       const answer = await this.p2p.createAnswer();
@@ -163,7 +157,7 @@ export default class WEBRTC {
   async host(roomId: string) {
     this.setCndExhanger(roomId);
     this.socket.on("webrtc-clientJoin", async () => {
-      console.log("client join!");
+      //Something is wrong here trouble is occured when have more than one client...
       await this.makeCall();
       const offer = await this.p2p.createOffer();
       await this.p2p.setLocalDescription(offer);

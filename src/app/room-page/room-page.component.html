@@ -1,29 +1,34 @@
 <div class="videos">
-  <div
-    *ngIf="!connection.connectionEstablished"
-    class="interface-call-settings"
-  >
+  <div *ngIf="!connection.roomEntered" class="interface-call-settings">
     <input
       placeholder="Enter room name..."
       (input)="handleRoomNameInput($event)"
     />
     <button (click)="handleHost()">host</button>
   </div>
-  <div *ngIf="connection.connectionEstablished">
-    <ng-template ngFor let-item [ngForOf]="connection.allStreams">
-      <div>
-        <app-video [stream]="item.stream"> </app-video>
-      </div>
+  <div
+    class="loading"
+    *ngIf="connection.roomEntered && !connection.connectionEstablished"
+  >
+    <h2>Waiting for users to join...</h2>
+  </div>
+  <div class="streams" *ngIf="connection.connectionEstablished">
+    <ng-template ngFor let-stream [ngForOf]="connection.streams">
+      <app-video [stream]="stream"> </app-video>
     </ng-template>
   </div>
 </div>
 <div class="interface">
   <div class="interface-call-settings">
     <input
-      placeholder="Enter room name..."
+      [placeholder]="
+        connection.roomEntered ? 'Already joined..' : 'Enter room name...'
+      "
       (input)="handleRoomNameInput($event)"
     />
-    <button (click)="handleJoin()">call</button>
+    <button [disabled]="connection.roomEntered" (click)="handleJoin()">
+      call
+    </button>
   </div>
   <button class="interface-call-end">end call</button>
   <div class="interface-link">

@@ -50,13 +50,11 @@ export default class Server {
     return room === undefined ? null : room;
   }
 
-  private addClientToRoom(roomId: string, client: User): void {
+  private addClientToRoom(roomId: string, client: User): boolean {
     const room = this.getRoomById(roomId);
-    if (room === null) {
-      console.log(`Room with id: ${roomId} does not exist!`);
-      return;
-    }
+    if (room === null) return false;
     room.clients.push(client);
+    return true;
   }
 
   get roomsArray() {
@@ -87,9 +85,9 @@ export default class Server {
         const user = this.users.get(socketClient.id);
         if (user === undefined) return;
         const { roomId } = data;
-        this.addClientToRoom(roomId, user);
+        const succes: boolean = this.addClientToRoom(roomId, user);
         socketClient.join(roomId);
-        this.socketIO.to(socketClient.id).emit("webrtc-roomJoinResponse", { succes: true });
+        this.socketIO.to(socketClient.id).emit("webrtc-roomJoinResponse", { succes });
         console.log("client", user);
         socketClient.broadcast.to(roomId).emit("webrtc-clientJoin");
       });
@@ -108,7 +106,7 @@ export default class Server {
         };
         this.addRoom(room);
         socketClient.join(id);
-        this.socketIO.to(socketClient.id).emit("webrtc-roomHostResponse", { roomId: id });
+        this.socketIO.to(socketClient.id).emit("webrtc-roomHostResponse", { roomId: id, succes: true });
         this.socketIO.emit("webrtc-roomsUpdate", { rooms: this.roomsArray });
         host.hosted = room.id;
       });

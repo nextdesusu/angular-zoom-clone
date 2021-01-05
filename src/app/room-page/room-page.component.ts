@@ -45,7 +45,6 @@ export class RoomPageComponent implements OnInit {
       if (val instanceof RoutesRecognized) {
         const firstChild = val.state.root.firstChild;
         if (firstChild === null) return;
-        //this.id = firstChild.params.id;
         const roomId = firstChild.params.id;
         console.log("room page id:", roomId);
         this.connection.join(roomId);
