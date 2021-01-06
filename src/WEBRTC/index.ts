@@ -11,6 +11,7 @@ export interface User {
 export default class WEBRTC {
   private user: User | null = null;
   private p2p: RTCPeerConnection | null = null;
+  private localStream: MediaStream | null = null;
 
   private _streams: Array<MediaStream> = [];
   private _rooms: Array<Room> = [];
@@ -27,7 +28,7 @@ export default class WEBRTC {
   }
 
   public get streams() {
-    return this._streams;
+    return [this.localStream, ...this._streams];
   }
 
   public get room() {
@@ -116,10 +117,10 @@ export default class WEBRTC {
 
   async makeCall(): Promise<void> {
     if (this.p2p === null) throw `P2P is null!`;
-    const localStream: MediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-    this._streams.push(localStream);
-    localStream.getTracks().forEach(track => {
-      this.p2p.addTrack(track, localStream);
+    console.log("making call...");
+    this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+    this.localStream.getTracks().forEach(track => {
+      this.p2p.addTrack(track, this.localStream);
     });
     //Not finished
     this.p2p.ontrack = (e: RTCTrackEvent) => {
@@ -130,7 +131,6 @@ export default class WEBRTC {
       if (!haveStream) {
         this._streams.push(currentStream);
       }
-      //console.log("streams now:", e.streams);
     }
   }
 
@@ -157,15 +157,16 @@ export default class WEBRTC {
   async host(roomId: string) {
     this.setCndExhanger(roomId);
     this.socket.on("webrtc-clientJoin", async () => {
-      //Something is wrong here trouble is occured when have more than one client...
       await this.makeCall();
       const offer = await this.p2p.createOffer();
+      console.log("offer", offer)
       await this.p2p.setLocalDescription(offer);
       this.socket.emit("webrtc-offer", {
         webRtcData: offer,
         roomId
       });
       this.socket.on("webrtc-answer", async ({ webRtcData }) => {
+        //if (this.p2p.remoteDescription !== null) return;
         await this.p2p.setRemoteDescription(webRtcData);
       });
     });
